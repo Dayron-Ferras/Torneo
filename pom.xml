@@ -13,5 +13,14 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <dependencies>
 
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>tree-package</artifactId>
+            <version>3.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/tree-package-v3.0.jar</systemPath>
+        </dependency>
+    </dependencies>
 </project>
