@@ -19,7 +19,6 @@ public class Partido {
         this.golesVisitante = 0;
     }
 
-    // Getters y Setters
     public String getRonda() { return ronda; }
     public String getEquipoLocal() { return equipoLocal; }
     public String getEquipoVisitante() { return equipoVisitante; }

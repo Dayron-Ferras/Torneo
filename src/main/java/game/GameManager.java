@@ -1,7 +1,5 @@
 package game;
 
-
-
 import model.*;
 import tree.ArbolHabilidades;
 import tree.ArbolTorneo;
@@ -38,7 +36,6 @@ public class GameManager {
             torneo.agregarClub(new Club("Real Club", 4, 2000));
         }
     }
-
     public boolean iniciarTorneo(String nombreTorneo) {
         for (Torneo torneo : torneosDisponibles) {
             if (torneo.getNombre().equals(nombreTorneo) && torneo.puedeParticipar(jugador)) {
@@ -64,23 +61,23 @@ public class GameManager {
     }
 
     public void procesarVictoria(Partido partido) {
-        // Recompensas por ganar partido
-        jugador.setDinero(200);
-        jugador.setExperiencia(100);
+        // Recompensas por ganar partido (sumar, no sobrescribir)
+        jugador.agregarDinero(200);
+        jugador.agregarExperiencia(100);
 
-        // Marcar partido como ganado
-        partido.setResultado(jugador.getNombre(), 3, 2); // Ejemplo de resultado
+        // Marcar partido como ganado (ejemplo)
+        partido.setResultado(jugador.getNombre(), 3, 2);
     }
 
     public void completarTorneo() {
         if (torneoActual != null && !torneoActual.isCompletado()) {
             // Recompensa por ganar torneo completo
-            jugador.setDinero(torneoActual.getRecompensa());
-            jugador.setExperiencia(500);
+            jugador.agregarDinero(torneoActual.getRecompensa());
+            jugador.agregarExperiencia(500);
             torneoActual.completarTorneo();
 
-            System.out.println("🎉 ¡Has ganado el " + torneoActual.getNombre() + "!");
-            System.out.println("💰 Recompensa: $" + torneoActual.getRecompensa());
+            System.out.println("¡Has ganado el " + torneoActual.getNombre() + "!");
+            System.out.println("Recompensa: $" + torneoActual.getRecompensa());
         }
     }
 
