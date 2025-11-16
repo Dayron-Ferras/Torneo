@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import model.Partido;
 
@@ -35,17 +36,23 @@ public class PartidoController {
     @FXML
     public void initialize() {
         disableShootButtons(true);
-        // small keeper idle animation
-        keeperIdle = new Timeline(new KeyFrame(Duration.millis(600), e -> {
-            if (lblGoalkeeper != null) {
-                double shift = (Math.random() - 0.5) * 40;
-                TranslateTransition t = new TranslateTransition(Duration.millis(300), lblGoalkeeper);
-                t.setByX(shift);
-                t.setAutoReverse(true);
-                t.setCycleCount(2);
-                t.play();
-            }
-        }));
+        setupKeeperAnimation();
+    }
+
+    private void setupKeeperAnimation() {
+        // Pequeña animación de idle para el portero
+        keeperIdle = new Timeline(
+                new KeyFrame(Duration.millis(800), e -> {
+                    if (lblGoalkeeper != null) {
+                        double shift = (Math.random() - 0.5) * 30;
+                        TranslateTransition t = new TranslateTransition(Duration.millis(400), lblGoalkeeper);
+                        t.setByX(shift);
+                        t.setAutoReverse(true);
+                        t.setCycleCount(2);
+                        t.play();
+                    }
+                })
+        );
         keeperIdle.setCycleCount(Animation.INDEFINITE);
     }
 
@@ -63,9 +70,15 @@ public class PartidoController {
         logArea.setText("🏟️ BIENVENIDO AL PARTIDO DE PENALTIS\n\n");
         disableShootButtons(true);
         btnStart.setDisable(false);
-        lblGoalkeeper.setTranslateX(0);
-        ballLayer.getChildren().clear();
-        if (keeperIdle != null) keeperIdle.stop();
+        if (lblGoalkeeper != null) {
+            lblGoalkeeper.setTranslateX(0);
+        }
+        if (ballLayer != null) {
+            ballLayer.getChildren().clear();
+        }
+        if (keeperIdle != null) {
+            keeperIdle.stop();
+        }
     }
 
     @FXML
@@ -74,6 +87,7 @@ public class PartidoController {
             log("GameManager no inicializado.");
             return;
         }
+
         shootout = new PenaltyShootout(gameManager.getJugador());
         running = true;
         lblPlayerScore.setText("0");
@@ -83,31 +97,49 @@ public class PartidoController {
         logArea.appendText("🚀 PARTIDO INICIADO\n");
         disableShootButtons(false);
         btnStart.setDisable(true);
-        keeperIdle.play();
+
+        if (keeperIdle != null) {
+            keeperIdle.play();
+        }
     }
 
-    @FXML private void onLeft() { playerShoot(PenaltyShootout.Direction.LEFT); }
-    @FXML private void onCenter() { playerShoot(PenaltyShootout.Direction.CENTER); }
-    @FXML private void onRight() { playerShoot(PenaltyShootout.Direction.RIGHT); }
+    @FXML
+    private void onLeft() {
+        if (running) playerShoot(PenaltyShootout.Direction.LEFT);
+    }
+
+    @FXML
+    private void onCenter() {
+        if (running) playerShoot(PenaltyShootout.Direction.CENTER);
+    }
+
+    @FXML
+    private void onRight() {
+        if (running) playerShoot(PenaltyShootout.Direction.RIGHT);
+    }
 
     private void playerShoot(PenaltyShootout.Direction dir) {
         if (!running || shootout == null) return;
 
         disableShootButtons(true);
-        // animate ball from penalty spot to goalkeeper direction
+
+        // Animar el disparo del jugador
         animatePlayerShot(dir, shotFinished -> {
-            // compute logic via shootout
+            // Calcular resultado del disparo
             PenaltyShootout.KickResult res = shootout.playerShoot(dir);
+
             Platform.runLater(() -> {
+                // Actualizar interfaz
                 lblPlayerScore.setText(String.valueOf(res.playerGoals));
                 lblOpponentScore.setText(String.valueOf(res.opponentGoals));
                 progressKicks.setProgress((double) shootout.getKicksTaken() / shootout.getTotalKicks());
                 logArea.appendText(formatKickLog(res));
+
                 if (res.seriesFinished) {
                     concludeMatch(res);
                 } else {
-                    // small delay then re-enable
-                    PauseTransition pause = new PauseTransition(Duration.millis(900));
+                    // Pequeña pausa antes de habilitar botones de nuevo
+                    PauseTransition pause = new PauseTransition(Duration.millis(1000));
                     pause.setOnFinished(ev -> {
                         disableShootButtons(false);
                         lblEstado.setText("Penalti " + (shootout.getKicksTaken() + 1) + "/" + shootout.getTotalKicks());
@@ -119,8 +151,13 @@ public class PartidoController {
     }
 
     private void animatePlayerShot(PenaltyShootout.Direction dir, java.util.function.Consumer<Void> onDone) {
-        // create ball
-        javafx.scene.shape.Circle ball = new javafx.scene.shape.Circle(8);
+        if (pitchPane == null || ballLayer == null) {
+            onDone.accept(null);
+            return;
+        }
+
+        // Crear pelota
+        Circle ball = new Circle(8);
         ball.getStyleClass().add("ball");
         Bounds bounds = pitchPane.getLayoutBounds();
 
@@ -130,33 +167,46 @@ public class PartidoController {
         ball.setTranslateY(startY);
         ballLayer.getChildren().add(ball);
 
+        // Calcular posición objetivo según la dirección
         double targetX;
         switch (dir) {
-            case LEFT: targetX = bounds.getMinX() + bounds.getWidth() * 0.35; break;
-            case CENTER: targetX = bounds.getMinX() + bounds.getWidth() * 0.5; break;
-            default: targetX = bounds.getMinX() + bounds.getWidth() * 0.7; break;
+            case LEFT:
+                targetX = bounds.getMinX() + bounds.getWidth() * 0.35;
+                break;
+            case CENTER:
+                targetX = bounds.getMinX() + bounds.getWidth() * 0.5;
+                break;
+            case RIGHT:
+                targetX = bounds.getMinX() + bounds.getWidth() * 0.65;
+                break;
+            default:
+                targetX = bounds.getMinX() + bounds.getWidth() * 0.5;
         }
         double targetY = bounds.getMinY() + bounds.getHeight() * 0.15;
 
-        TranslateTransition tt = new TranslateTransition(Duration.millis(650), ball);
-        tt.setToX(targetX);
-        tt.setToY(targetY);
-        tt.setInterpolator(javafx.animation.Interpolator.EASE_IN);
-        tt.setOnFinished(e -> {
-            FadeTransition ft = new FadeTransition(Duration.millis(180), ball);
-            ft.setToValue(0);
-            ft.setOnFinished(ev -> {
+        // Animación de la pelota
+        TranslateTransition moveBall = new TranslateTransition(Duration.millis(600), ball);
+        moveBall.setToX(targetX - startX);
+        moveBall.setToY(targetY - startY);
+        moveBall.setInterpolator(Interpolator.EASE_IN);
+
+        moveBall.setOnFinished(e -> {
+            // Desvanecer pelota
+            FadeTransition fadeBall = new FadeTransition(Duration.millis(200), ball);
+            fadeBall.setToValue(0);
+            fadeBall.setOnFinished(ev -> {
                 ballLayer.getChildren().remove(ball);
                 onDone.accept(null);
             });
-            ft.play();
+            fadeBall.play();
         });
-        tt.play();
+
+        moveBall.play();
     }
 
     private String formatKickLog(PenaltyShootout.KickResult res) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Penal ").append(shootout.getKicksTaken()).append(": ");
+        sb.append("Penalti ").append(shootout.getKicksTaken()).append(": ");
         sb.append(res.playerScored ? "✅ GOL" : "❌ Fallado");
         sb.append(" | Rival: ").append(res.opponentScored ? "⚽ Gol" : "🧤 Falló");
         sb.append("\nMarcador: ").append(res.playerGoals).append(" - ").append(res.opponentGoals).append("\n\n");
@@ -167,17 +217,32 @@ public class PartidoController {
         running = false;
         disableShootButtons(true);
         btnStart.setDisable(false);
-        keeperIdle.stop();
 
-        String resultMsg = res.playerGoals > res.opponentGoals ? "🎉 ¡VICTORIA!" : res.playerGoals < res.opponentGoals ? "💔 Derrota" : "🤝 Empate";
-        lblEstado.setText("Partido finalizado: " + resultMsg);
-        logArea.appendText("\n" + resultMsg + " - Marcador final: " + res.playerGoals + " - " + res.opponentGoals + "\n");
-
-        // notify GameManager for rewards if win (use procesarVictoria/completarTorneo accordingly)
-        if (res.playerGoals > res.opponentGoals && gameManager != null) {
-            gameManager.procesarVictoria(new Partido("Tanda", gameManager.getJugador().getNombre(), "Rival"));
+        if (keeperIdle != null) {
+            keeperIdle.stop();
         }
-        // show small notification (non-blocking)
+
+        String resultMsg;
+        if (res.playerGoals > res.opponentGoals) {
+            resultMsg = "🎉 ¡VICTORIA!";
+        } else if (res.playerGoals < res.opponentGoals) {
+            resultMsg = "💔 Derrota";
+        } else {
+            resultMsg = "🤝 Empate";
+        }
+
+        lblEstado.setText("Partido finalizado: " + resultMsg);
+        logArea.appendText("\n" + resultMsg + " - Marcador final: " +
+                res.playerGoals + " - " + res.opponentGoals + "\n");
+
+        // Notificar al GameManager si hay victoria
+        if (res.playerGoals > res.opponentGoals && gameManager != null) {
+            // Crear un partido simulado para procesar la victoria
+            Partido partidoSimulado = new Partido("Tanda de Penaltis",
+                    gameManager.getJugador().getNombre() + " FC",
+                    "Rival");
+            gameManager.procesarVictoria(partidoSimulado);
+        }
     }
 
     private void disableShootButtons(boolean disable) {
@@ -186,7 +251,7 @@ public class PartidoController {
         btnRight.setDisable(disable);
     }
 
-    private void log(String s) {
-        Platform.runLater(() -> logArea.appendText(s + "\n"));
+    private void log(String message) {
+        Platform.runLater(() -> logArea.appendText(message + "\n"));
     }
 }
