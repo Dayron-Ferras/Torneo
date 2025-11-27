@@ -22,15 +22,12 @@ public class GameManager {
     }
 
     private void inicializarTorneos() {
-        // Torneos básicos (sin clubs todavía)
         torneosDisponibles.add(new Torneo("Torneo Local", 1, 1000));
         torneosDisponibles.add(new Torneo("Copa Regional", 3, 2500));
         torneosDisponibles.add(new Torneo("Liga Nacional", 5, 5000));
         torneosDisponibles.add(new Torneo("Champions Cup", 8, 10000));
 
-        // Configurar clubs para cada torneo
         for (Torneo torneo : torneosDisponibles) {
-            // Agregar clubs específicos según el torneo
             if (torneo.getNombre().equals("Torneo Local")) {
                 torneo.agregarClub(new Club("Equipo Local", 1, 500));
                 torneo.agregarClub(new Club("Club Deportivo", 2, 800));
@@ -60,14 +57,11 @@ public class GameManager {
             if (torneo.getNombre().equals(nombreTorneo) && torneo.puedeParticipar(jugador)) {
                 this.torneoActual = torneo;
 
-                // Convertir List<Club> a Club[] para el ArbolTorneo
                 List<Club> clubsList = torneo.getClubsParticipantes();
                 Club[] clubsArray = clubsList.toArray(new Club[0]);
 
-                // Crear el árbol del torneo
                 this.arbolTorneoActual = new ArbolTorneo(nombreTorneo, clubsArray);
 
-                // Asignar al jugador el primer club disponible
                 if (!clubsList.isEmpty()) {
                     jugador.setClubActual(clubsList.get(0));
                 }
@@ -85,7 +79,6 @@ public class GameManager {
                 partidoActual.jugarPartido(jugador);
                 arbolTorneoActual.actualizarLlave();
 
-                // Verificar si el torneo terminó
                 if (arbolTorneoActual.isTorneoTerminado()) {
                     completarTorneo();
                 }
@@ -94,7 +87,6 @@ public class GameManager {
     }
 
     public void procesarVictoria(Partido partido) {
-        // Las recompensas ahora se manejan dentro de la clase Partido.jugarPartido()
         System.out.println("¡Partido ganado! Recompensas aplicadas automáticamente.");
     }
 
@@ -104,14 +96,12 @@ public class GameManager {
 
             Club campeon = arbolTorneoActual.getCampeon();
             if (campeon != null && campeon.equals(jugador.getClubActual())) {
-                // Recompensa adicional por ganar el torneo completo
                 jugador.agregarDinero(torneoActual.getRecompensa());
                 jugador.agregarExperiencia(500);
 
                 System.out.println("¡Has ganado el " + torneoActual.getNombre() + "!");
                 System.out.println("Recompensa: $" + torneoActual.getRecompensa());
 
-                // Marcar torneo como completado
                 torneoActual.completarTorneo();
             }
         }
@@ -132,7 +122,6 @@ public class GameManager {
         }
     }
 
-    // Getters
     public Jugador getJugador() { return jugador; }
     public List<Torneo> getTorneosDisponibles() { return torneosDisponibles; }
     public Torneo getTorneoActual() { return torneoActual; }

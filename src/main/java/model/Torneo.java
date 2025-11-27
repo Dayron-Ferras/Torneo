@@ -37,4 +37,9 @@ public class Torneo {
     public int getRecompensa() { return recompensa; }
     public boolean isCompletado() { return completado; }
     public List<Club> getClubsParticipantes() { return clubsParticipantes; }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
 }

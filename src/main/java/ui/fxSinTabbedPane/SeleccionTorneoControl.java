@@ -5,9 +5,8 @@ import model.Torneo;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
-import javafx.scene.control.TreeItem;
 import javafx.collections.FXCollections;
+import javafx.scene.control.TreeItem;
 
 public class SeleccionTorneoControl {
 
@@ -15,23 +14,31 @@ public class SeleccionTorneoControl {
     @FXML private TextArea txtTournamentInfo;
     @FXML private Button btnStartTournament;
     @FXML private TreeView<String> treeBracket;
+    @FXML private Button btnVolverMenu;
 
     private GameManager gameManager;
+    private Principal principal;
 
     public void setGameManager(GameManager gm) {
         this.gameManager = gm;
         loadTournaments();
     }
 
+    public void setMainApp(Principal p) {
+        this.principal = p;
+    }
+
     @FXML
     public void initialize() {
         btnStartTournament.setDisable(true);
-        listTorneos.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
-            if (newV != null) {
-                showTorneoInfo(newV);
+
+        listTorneos.getSelectionModel().selectedItemProperty().addListener((obs, oldT, newT) -> {
+            if (newT != null) {
+                showTorneoInfo(newT);
                 btnStartTournament.setDisable(false);
             } else {
                 txtTournamentInfo.clear();
+                treeBracket.setRoot(null);
                 btnStartTournament.setDisable(true);
             }
         });
@@ -39,8 +46,13 @@ public class SeleccionTorneoControl {
 
     private void loadTournaments() {
         if (gameManager == null) return;
+
         Platform.runLater(() -> {
-            listTorneos.setItems(FXCollections.observableArrayList(gameManager.getTorneosDisponibles()));
+            listTorneos.setItems(
+                    FXCollections.observableArrayList(
+                            gameManager.getTorneosDisponibles()
+                    )
+            );
         });
     }
 
@@ -50,16 +62,21 @@ public class SeleccionTorneoControl {
         sb.append("Nivel Requerido: ").append(t.getNivelRequerido()).append("\n");
         sb.append("Recompensa: $").append(t.getRecompensa()).append("\n");
         sb.append("Estado: ").append(t.isCompletado() ? "✅ Completado" : "🟡 Disponible").append("\n\n");
+
         sb.append("Clubs participantes:\n");
         t.getClubsParticipantes().forEach(c -> sb.append("• ").append(c.getNombre()).append("\n"));
+
         txtTournamentInfo.setText(sb.toString());
 
-        // simple bracket demo
-        TreeItem<String> root = new TreeItem<>(t.getNombre());
-        root.getChildren().add(new TreeItem<>("Ronda 1"));
-        root.getChildren().add(new TreeItem<>("Ronda 2"));
-        treeBracket.setRoot(root);
+        TreeItem<String> root = new TreeItem<>("Torneo: " + t.getNombre());
+        TreeItem<String> r1 = new TreeItem<>("Ronda 1");
+        TreeItem<String> r2 = new TreeItem<>("Ronda 2");
+        TreeItem<String> r3 = new TreeItem<>("Final");
+
+        root.getChildren().addAll(r1, r2, r3);
         root.setExpanded(true);
+
+        treeBracket.setRoot(root);
     }
 
     @FXML
@@ -69,14 +86,25 @@ public class SeleccionTorneoControl {
 
         boolean ok = gameManager.iniciarTorneo(sel.getNombre());
         Alert a;
+
         if (ok) {
-            a = new Alert(Alert.AlertType.INFORMATION, "¡Torneo iniciado: " + sel.getNombre(), ButtonType.OK);
-            a.setHeaderText(null);
-            a.showAndWait();
+            a = new Alert(Alert.AlertType.INFORMATION,
+                    "¡Torneo iniciado: " + sel.getNombre() + "!",
+                    ButtonType.OK);
         } else {
-            a = new Alert(Alert.AlertType.WARNING, "No cumples requisitos para participar (nivel insuficiente).", ButtonType.OK);
-            a.setHeaderText(null);
-            a.showAndWait();
+            a = new Alert(Alert.AlertType.WARNING,
+                    "No cumples los requisitos de nivel para este torneo.",
+                    ButtonType.OK);
+        }
+
+        a.setHeaderText(null);
+        a.showAndWait();
+    }
+
+    @FXML
+    private void onVolverMenu() {
+        if (principal != null) {
+            principal.loadMainMenu();
         }
     }
 }

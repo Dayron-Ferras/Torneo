@@ -3,27 +3,52 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fxSinTabbedPane.SeleccionTorneoControl" stylesheets="@panels.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.fxSinTabbedPane.SeleccionTorneoControl"
+            stylesheets="@panels.css">
+
+
     <top>
-        <HBox styleClass="header" alignment="CENTER">
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+            <Button fx:id="btnVolverMenu"
+                    text="⬅ Volver"
+                    onAction="#onVolverMenu"
+                    styleClass="back-button"/>
+
             <Label text="🏆 SELECCIÓN DE TORNEOS" styleClass="title"/>
         </HBox>
     </top>
 
+
     <center>
-        <SplitPane dividerPositions="0.4">
-            <VBox spacing="8" styleClass="panel" alignment="TOP_CENTER">
+        <SplitPane dividerPositions="0.35">
+            <VBox spacing="12" alignment="TOP_CENTER" styleClass="panel">
                 <Label text="TORNEOS DISPONIBLES" styleClass="section"/>
-                <ListView fx:id="listTorneos" prefHeight="620" prefWidth="360"/>
-                <Button fx:id="btnStartTournament" text="🚀 INICIAR TORNEO" onAction="#onStartTournament" />
+
+                <ListView fx:id="listTorneos"
+                          prefWidth="320"
+                          prefHeight="560"/>
+
+                <Button fx:id="btnStartTournament"
+                        text="🚀 INICIAR TORNEO"
+                        onAction="#onStartTournament"
+                        styleClass="action-button"/>
             </VBox>
 
-            <VBox spacing="8" styleClass="panel" alignment="TOP_LEFT">
+            <VBox spacing="12" alignment="TOP_LEFT" styleClass="panel">
                 <Label text="INFORMACIÓN DEL TORNEO" styleClass="section"/>
-                <TextArea fx:id="txtTournamentInfo" editable="false" wrapText="true"/>
-                <Label text="Árbol de torneo (vista rápida)" styleClass="section"/>
-                <TreeView fx:id="treeBracket" prefHeight="300"/>
+
+                <TextArea fx:id="txtTournamentInfo"
+                          wrapText="true"
+                          editable="false"
+                          prefHeight="280"/>
+
+                <Label text="Árbol del torneo" styleClass="section"/>
+
+                <TreeView fx:id="treeBracket"
+                          prefHeight="280"/>
             </VBox>
         </SplitPane>
     </center>
+
 </BorderPane>

@@ -28,6 +28,7 @@ public class PartidoControl {
     private PenaltyShootout shootout;
     private Timeline keeperIdle;
     private boolean running = false;
+    private Principal principal;
 
     public void setGameManager(GameManager gm) {
         this.gameManager = gm;
@@ -40,7 +41,6 @@ public class PartidoControl {
     }
 
     private void setupKeeperAnimation() {
-        // Pequeña animación de idle para el portero
         keeperIdle = new Timeline(
                 new KeyFrame(Duration.millis(800), e -> {
                     if (lblGoalkeeper != null) {
@@ -123,13 +123,10 @@ public class PartidoControl {
 
         disableShootButtons(true);
 
-        // Animar el disparo del jugador
         animatePlayerShot(dir, shotFinished -> {
-            // Calcular resultado del disparo
             PenaltyShootout.KickResult res = shootout.playerShoot(dir);
 
             Platform.runLater(() -> {
-                // Actualizar interfaz
                 lblPlayerScore.setText(String.valueOf(res.playerGoals));
                 lblOpponentScore.setText(String.valueOf(res.opponentGoals));
                 progressKicks.setProgress((double) shootout.getKicksTaken() / shootout.getTotalKicks());
@@ -138,7 +135,6 @@ public class PartidoControl {
                 if (res.seriesFinished) {
                     concludeMatch(res);
                 } else {
-                    // Pequeña pausa antes de habilitar botones de nuevo
                     PauseTransition pause = new PauseTransition(Duration.millis(1000));
                     pause.setOnFinished(ev -> {
                         disableShootButtons(false);
@@ -156,7 +152,6 @@ public class PartidoControl {
             return;
         }
 
-        // Crear pelota
         Circle ball = new Circle(8);
         ball.getStyleClass().add("ball");
         Bounds bounds = pitchPane.getLayoutBounds();
@@ -167,7 +162,6 @@ public class PartidoControl {
         ball.setTranslateY(startY);
         ballLayer.getChildren().add(ball);
 
-        // Calcular posición objetivo según la dirección
         double targetX;
         switch (dir) {
             case LEFT:
@@ -184,14 +178,12 @@ public class PartidoControl {
         }
         double targetY = bounds.getMinY() + bounds.getHeight() * 0.15;
 
-        // Animación de la pelota
         TranslateTransition moveBall = new TranslateTransition(Duration.millis(600), ball);
         moveBall.setToX(targetX - startX);
         moveBall.setToY(targetY - startY);
         moveBall.setInterpolator(Interpolator.EASE_IN);
 
         moveBall.setOnFinished(e -> {
-            // Desvanecer pelota
             FadeTransition fadeBall = new FadeTransition(Duration.millis(200), ball);
             fadeBall.setToValue(0);
             fadeBall.setOnFinished(ev -> {
@@ -235,9 +227,7 @@ public class PartidoControl {
         logArea.appendText("\n" + resultMsg + " - Marcador final: " +
                 res.playerGoals + " - " + res.opponentGoals + "\n");
 
-        // Notificar al GameManager si hay victoria
         if (res.playerGoals > res.opponentGoals && gameManager != null) {
-            // Crear un partido simulado para procesar la victoria
             Partido partidoSimulado = new Partido("Tanda de Penaltis",
                     gameManager.getJugador().getNombre() + " FC",
                     "Rival");
@@ -253,5 +243,9 @@ public class PartidoControl {
 
     private void log(String message) {
         Platform.runLater(() -> logArea.appendText(message + "\n"));
+    }
+
+    public void setMainApp(Principal p){
+        this.principal=principal;
     }
 }

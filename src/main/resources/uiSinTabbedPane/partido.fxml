@@ -15,18 +15,14 @@
 
     <center>
         <SplitPane dividerPositions="0.65">
-            <!-- Left: cancha / animaciones -->
             <AnchorPane fx:id="pitchRoot" prefHeight="520" prefWidth="800" styleClass="panel">
                 <Label text="🏟️ CANCHA DE JUEGO" layoutX="10" layoutY="8" styleClass="section"/>
                 <Pane fx:id="pitchPane" layoutX="10" layoutY="40" prefWidth="760" prefHeight="440" styleClass="pitch">
-                    <!-- goalkeeper node -->
                     <Label fx:id="lblGoalkeeper" text="🧤" styleClass="goalkeeper" layoutX="370" layoutY="170"/>
-                    <!-- animation layer -->
                     <Pane fx:id="ballLayer" prefWidth="760" prefHeight="440" />
                 </Pane>
             </AnchorPane>
 
-            <!-- Right: controles, marcador, log -->
             <VBox spacing="12" styleClass="panel" alignment="TOP_CENTER">
                 <VBox spacing="8" alignment="CENTER">
                     <Label text="📊 MARCADOR" styleClass="section"/>

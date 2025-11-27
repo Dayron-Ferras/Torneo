@@ -18,6 +18,7 @@ public class HabilidadesControl {
     @FXML private Button btnBuy;
     @FXML private GridPane statsGrid;
 
+    private Principal principal;
     private GameManager gameManager;
     private Habilidad selected;
 
@@ -89,7 +90,6 @@ public class HabilidadesControl {
         selected.comprar(gameManager.getJugador());
         showInfo(selected);
         refreshStats();
-        // small confirmation
         Alert a = new Alert(Alert.AlertType.INFORMATION, "¡Habilidad adquirida!", ButtonType.OK);
         a.setHeaderText(null);
         a.showAndWait();
@@ -116,5 +116,9 @@ public class HabilidadesControl {
         v.getStyleClass().add("stat-value");
         statsGrid.add(l, 0, row);
         statsGrid.add(v, 1, row);
+    }
+
+    public void setMainApp(Principal p){
+        this.principal=principal;
     }
 }

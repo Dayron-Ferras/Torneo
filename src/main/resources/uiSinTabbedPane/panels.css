@@ -1,61 +1,57 @@
-.root {
-    -fx-font-family: "Segoe UI Bold", Arial, sans-serif;
-    -fx-background-color: #141832;
+.header {
+    -fx-padding: 20;
+    -fx-background-color: #24263f;
 }
 
-/* HEADER */
-.header {
-    -fx-background-color: linear-gradient(#0062cc, #004a99);
-    -fx-padding: 20 0;
-}
 .title {
     -fx-text-fill: white;
-    -fx-font-size: 28px;
+    -fx-font-size: 26px;
     -fx-font-weight: bold;
-}
-.subtitle {
-    -fx-text-fill: #d8e8ff;
-    -fx-font-size: 16px;
 }
 
-/* BOTONES */
-.btn-green {
-    -fx-background-color: linear-gradient(#00a82d, #007f20);
-    -fx-text-fill: white;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+.panel {
+    -fx-background-color: #2a2d4a;
     -fx-background-radius: 12;
-}
-.btn-green:hover {
-    -fx-background-color: linear-gradient(#00c437, #00992a);
+    -fx-padding: 15;
 }
 
-.btn-yellow {
-    -fx-background-color: linear-gradient(#ffab0f, #d98900);
-    -fx-text-fill: white;
-    -fx-font-size: 20px;
+.section {
+    -fx-text-fill: #c0c0c0;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-background-radius: 12;
 }
 
-.btn-red {
-    -fx-background-color: linear-gradient(#cc0000, #990000);
+.list-view {
+    -fx-background-radius: 8;
+    -fx-control-inner-background: #1e2035;
     -fx-text-fill: white;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 12;
 }
 
-.btn-gray {
-    -fx-background-color: linear-gradient(#777, #555);
-    -fx-text-fill: white;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 12;
-}
-
-.footer {
-    -fx-text-fill: #dce8ff;
+.info-area {
+    -fx-control-inner-background: #1e2035;
     -fx-font-size: 14px;
+    -fx-text-fill: #d0d0d0;
+    -fx-background-radius: 8;
+}
+
+.tree-view {
+    -fx-background-color: #1e2035;
+    -fx-background-radius: 8;
+}
+
+.action-button {
+    -fx-background-color: #0ea800;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-padding: 12 25;
+    -fx-background-radius: 8;
+}
+
+.action-button:hover {
+    -fx-background-color: #16c612;
+}
+
+.split-pane {
+    -fx-padding: 10;
 }
