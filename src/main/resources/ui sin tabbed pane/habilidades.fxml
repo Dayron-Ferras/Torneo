@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fxSinTabbedPane.HabilidadesControl" stylesheets="@panels.css">
+    <top>
+        <HBox styleClass="header" alignment="CENTER">
+            <Label text="⭐ SISTEMA DE HABILIDADES" styleClass="title"/>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.45">
+            <VBox spacing="8" styleClass="panel" alignment="TOP_CENTER">
+                <Label text="🌳 ÁRBOL DE HABILIDADES" styleClass="section"/>
+                <TreeView fx:id="treeHabs" prefHeight="620" prefWidth="420" />
+            </VBox>
+
+            <VBox spacing="8" styleClass="panel" alignment="TOP_CENTER">
+                <Label text="📊 INFORMACIÓN DE HABILIDAD" styleClass="section"/>
+                <TextArea fx:id="txtInfo" editable="false" wrapText="true" prefRowCount="12"/>
+                <Button fx:id="btnBuy" text="🛒 COMPRAR HABILIDAD" onAction="#onBuy" disable="true" />
+                <Separator/>
+                <Label text="👤 ESTADÍSTICAS DEL JUGADOR" styleClass="section"/>
+                <GridPane fx:id="statsGrid" hgap="10" vgap="8" />
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>

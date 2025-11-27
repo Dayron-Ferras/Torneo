@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fxSinTabbedPane.PartidoControl" stylesheets="@panels.css">
+    <top>
+        <VBox>
+            <HBox styleClass="header" alignment="CENTER">
+                <Label text="⚽ PARTIDO DE PENALTIS" styleClass="title"/>
+            </HBox>
+            <Label fx:id="lblEstado" text="Preparado para comenzar..." styleClass="subtitle" />
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.65">
+            <!-- Left: cancha / animaciones -->
+            <AnchorPane fx:id="pitchRoot" prefHeight="520" prefWidth="800" styleClass="panel">
+                <Label text="🏟️ CANCHA DE JUEGO" layoutX="10" layoutY="8" styleClass="section"/>
+                <Pane fx:id="pitchPane" layoutX="10" layoutY="40" prefWidth="760" prefHeight="440" styleClass="pitch">
+                    <!-- goalkeeper node -->
+                    <Label fx:id="lblGoalkeeper" text="🧤" styleClass="goalkeeper" layoutX="370" layoutY="170"/>
+                    <!-- animation layer -->
+                    <Pane fx:id="ballLayer" prefWidth="760" prefHeight="440" />
+                </Pane>
+            </AnchorPane>
+
+            <!-- Right: controles, marcador, log -->
+            <VBox spacing="12" styleClass="panel" alignment="TOP_CENTER">
+                <VBox spacing="8" alignment="CENTER">
+                    <Label text="📊 MARCADOR" styleClass="section"/>
+                    <HBox spacing="20" alignment="CENTER">
+                        <VBox alignment="CENTER">
+                            <Label text="JUGADOR" styleClass="teamLabel"/>
+                            <Label fx:id="lblPlayerScore" text="0" styleClass="scoreLabel"/>
+                        </VBox>
+                        <VBox alignment="CENTER">
+                            <Label text="RIVAL" styleClass="teamLabel"/>
+                            <Label fx:id="lblOpponentScore" text="0" styleClass="scoreLabel"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <ProgressBar fx:id="progressKicks" prefWidth="320" progress="0"/>
+
+                <HBox spacing="8" alignment="CENTER">
+                    <Button fx:id="btnLeft" text="⬅ Izquierda" onAction="#onLeft" />
+                    <Button fx:id="btnCenter" text="⬆ Centro" onAction="#onCenter" />
+                    <Button fx:id="btnRight" text="➡ Derecha" onAction="#onRight" />
+                </HBox>
+
+                <Button fx:id="btnStart" text="🚀 INICIAR PARTIDO" onAction="#onStart" styleClass="accent" />
+
+                <Label text="📝 DESARROLLO DEL PARTIDO" styleClass="subsection"/>
+                <TextArea fx:id="logArea" prefRowCount="10" wrapText="true" editable="false"/>
+
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>
