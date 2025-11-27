@@ -3,12 +3,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fxSinTabbedPane.PartidoControl" stylesheets="@panels.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.fxSinTabbedPane.PartidoRapidoControl"
+            stylesheets="@panels.css">
+
     <top>
         <VBox>
-            <HBox styleClass="header" alignment="CENTER">
-                <Label text="⚽ PARTIDO DE PENALTIS" styleClass="title"/>
+            <!-- header con botón volver a la izquierda -->
+            <HBox styleClass="header" alignment="CENTER_LEFT" spacing="8">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+
+                <Button fx:id="btnVolver" text="⬅ Menú Principal" onAction="#onVolver" />
+
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="⚽ PARTIDO DE PENALTIS" styleClass="title" />
+                <Region HBox.hgrow="ALWAYS"/>
             </HBox>
+
             <Label fx:id="lblEstado" text="Preparado para comenzar..." styleClass="subtitle" />
         </VBox>
     </top>

@@ -43,26 +43,11 @@ public class MainMenuControl {
     private void initialize() {
         btnTorneo.setOnAction(e -> loadScreen("seleccionTorneo.fxml"));
         btnHabilidades.setOnAction(e -> loadScreen("habilidades.fxml"));
-        btnPartido.setOnAction(e -> loadScreen("partido.fxml"));
+        btnPartido.setOnAction(e -> loadScreen("partidoRapido.fxml"));
         btnSalir.setOnAction(e -> System.exit(0));
     }
 
     private void loadScreen(String fxmlName) {
-        try {
-            String path = "/uiSinTabbedPane/" + fxmlName;
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
-            Parent root = loader.load();
-
-            Object ctrl = loader.getController();
-            try {
-                ctrl.getClass().getMethod("setGameManager", GameManager.class)
-                        .invoke(ctrl, gameManager);
-            } catch (NoSuchMethodException ignored) {}
-
-            principal.getRootPane().setCenter(root);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        principal.setScreen("/uiSinTabbedPane/" + fxmlName);
     }
 }

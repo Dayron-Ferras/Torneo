@@ -107,4 +107,9 @@ public class Habilidad {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
 }

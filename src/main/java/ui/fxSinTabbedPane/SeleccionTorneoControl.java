@@ -104,7 +104,7 @@ public class SeleccionTorneoControl {
     @FXML
     private void onVolverMenu() {
         if (principal != null) {
-            principal.loadMainMenu();
+            principal.setScreen("/uiSinTabbedPane/mainMenu.fxml");
         }
     }
 }

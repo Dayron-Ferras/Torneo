@@ -31,19 +31,7 @@ public class Principal extends Application {
     }
 
     public void loadMainMenu() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/uiSinTabbedPane/mainMenu.fxml"));
-            Parent view = loader.load();
-
-            MainMenuControl ctrl = loader.getController();
-            ctrl.setMainApp(this);
-            ctrl.setGameManager(gameManager);
-
-            rootPane.setCenter(view);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        setScreen("/uiSinTabbedPane/mainMenu.fxml");
     }
 
     public void setScreen(String fxml) {
@@ -65,7 +53,7 @@ public class Principal extends Application {
                 c.setMainApp(this);
                 c.setGameManager(gameManager);
             }
-            if (controller instanceof PartidoControl c) {
+            if (controller instanceof PartidoRapidoControl c) {
                 c.setMainApp(this);
                 c.setGameManager(gameManager);
             }
@@ -77,12 +65,12 @@ public class Principal extends Application {
         }
     }
 
-    public BorderPane getRootPane() {
-        return rootPane;
-    }
-
     public GameManager getGameManager() {
         return gameManager;
+    }
+
+    public BorderPane getRootPane() {
+        return rootPane;
     }
 
     public static void main(String[] args) {

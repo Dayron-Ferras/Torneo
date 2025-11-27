@@ -11,7 +11,7 @@
     <top>
         <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
             <Button fx:id="btnVolverMenu"
-                    text="⬅ Volver"
+                    text="⬅ Menù Principal"
                     onAction="#onVolverMenu"
                     styleClass="back-button"/>
 
