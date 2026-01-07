@@ -88,17 +88,25 @@ public class SeleccionTorneoControl {
         Alert a;
 
         if (ok) {
-            a = new Alert(Alert.AlertType.INFORMATION,
-                    "¡Torneo iniciado: " + sel.getNombre() + "!",
-                    ButtonType.OK);
+            // Aquí es donde cargamos la pantalla de TorneoEnVivo
+            if (principal != null) {
+                // Primero mostrar mensaje de confirmación
+                a = new Alert(Alert.AlertType.INFORMATION,
+                        "¡Torneo iniciado: " + sel.getNombre() + "!\n\nRedirigiendo al panel del torneo...",
+                        ButtonType.OK);
+                a.setHeaderText(null);
+                a.showAndWait();
+
+                // Cargar la pantalla de TorneoEnVivo
+                principal.setScreen("/uiSinTabbedPane/torneoEnVivo.fxml");
+            }
         } else {
             a = new Alert(Alert.AlertType.WARNING,
                     "No cumples los requisitos de nivel para este torneo.",
                     ButtonType.OK);
+            a.setHeaderText(null);
+            a.showAndWait();
         }
-
-        a.setHeaderText(null);
-        a.showAndWait();
     }
 
     @FXML

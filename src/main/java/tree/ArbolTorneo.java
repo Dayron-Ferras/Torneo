@@ -92,6 +92,7 @@ public class ArbolTorneo {
 
         Partido partido = nodo.getInfo();
 
+
         // Verificar si el jugador participa en este partido y no se ha jugado
         if (!partido.isJugado() &&
                 ((partido.getEquipoLocal() != null && partido.getEquipoLocal().equals(jugador.getClubActual())) ||

@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import model.Jugador;
@@ -57,11 +58,22 @@ public class Principal extends Application {
                 c.setMainApp(this);
                 c.setGameManager(gameManager);
             }
+            // Agregar el controlador de torneo en vivo
+            if (controller instanceof TorneoEnVivoControl c) {
+                c.setMainApp(this);
+                c.setGameManager(gameManager);
+            }
 
             rootPane.setCenter(view);
 
         } catch (Exception e) {
             e.printStackTrace();
+            // Mostrar mensaje de error si no se puede cargar la pantalla
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No se pudo cargar la pantalla");
+            alert.setContentText("Error al cargar: " + fxml + "\n" + e.getMessage());
+            alert.showAndWait();
         }
     }
 

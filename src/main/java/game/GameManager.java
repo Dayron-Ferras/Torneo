@@ -106,7 +106,18 @@ public class GameManager {
             }
         }
     }
-
+    // En GameManager.java
+    public void avanzarTorneo() {
+        if (arbolTorneoActual != null) {
+            // Forzar actualización de todos los partidos
+            for (int i = 0; i < 10; i++) { // Intentar varias veces
+                jugarPartidoActual();
+                if (arbolTorneoActual.isTorneoTerminado()) {
+                    break;
+                }
+            }
+        }
+    }
     public void mostrarEstadoTorneo() {
         if (arbolTorneoActual != null) {
             arbolTorneoActual.imprimirArbol();
