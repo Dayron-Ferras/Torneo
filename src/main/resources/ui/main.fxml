@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fx.MainController">
+    <top>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="top-bar" padding="10">
+            <Label text="Desafío de Clubes" styleClass="title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <HBox spacing="8" alignment="CENTER">
+                <Label text="Dinero:"/>
+                <ProgressBar fx:id="moneyBar" prefWidth="180"/>
+                <Label fx:id="moneyLabel" text="$0" styleClass="stat-label"/>
+                <Label text="XP:"/>
+                <ProgressBar fx:id="xpBar" prefWidth="180"/>
+                <Label fx:id="xpLabel" text="0" styleClass="stat-label"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="8" prefWidth="320" padding="12">
+            <Label text="Torneo" styleClass="section-title"/>
+            <TreeView fx:id="tournamentTree" prefHeight="600" />
+        </VBox>
+    </left>
+
+    <right>
+        <VBox spacing="8" prefWidth="340" padding="12">
+            <Label text="Estadísticas" styleClass="section-title"/>
+            <TableView fx:id="statsTable" prefHeight="320">
+                <columns>
+                    <TableColumn text="Atributo" prefWidth="160" />
+                    <TableColumn text="Valor" prefWidth="160" />
+                </columns>
+            </TableView>
+
+            <Label text="Equipos disponibles" styleClass="section-title" />
+            <ListView fx:id="teamsList" prefHeight="280" />
+        </VBox>
+    </right>
+
+    <center>
+        <StackPane padding="12">
+            <AnchorPane fx:id="gamePane" styleClass="game-pane" prefWidth="700" prefHeight="600">
+                <VBox spacing="12" alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                    <Label text="Tanda de Penales" styleClass="section-title-large"/>
+                    <HBox spacing="20" alignment="CENTER">
+                        <VBox alignment="CENTER" spacing="6">
+                            <Label text="Jugador" styleClass="team-title"/>
+                            <Label fx:id="playerScoreLabel" text="0" styleClass="score"/>
+                        </VBox>
+                        <Region/>
+                        <VBox alignment="CENTER" spacing="6">
+                            <Label text="Rival" styleClass="team-title"/>
+                            <Label fx:id="opponentScoreLabel" text="0" styleClass="score"/>
+                        </VBox>
+                    </HBox>
+
+                    <Pane prefHeight="320" prefWidth="640" styleClass="pitch" fx:id="pitchPane">
+                        <Pane fx:id="animationLayer" prefWidth="640" prefHeight="320" />
+                    </Pane>
+
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Izquierda" fx:id="btnLeft" onAction="#onShootLeft" />
+                        <Button text="Centro" fx:id="btnCenter" onAction="#onShootCenter" />
+                        <Button text="Derecha" fx:id="btnRight" onAction="#onShootRight" />
+                        <Button text="Iniciar tanda" fx:id="btnStart" onAction="#onStartPenalty" />
+                    </HBox>
+
+                    <Label fx:id="messageLabel" text="" />
+                </VBox>
+            </AnchorPane>
+        </StackPane>
+    </center>
+</BorderPane>

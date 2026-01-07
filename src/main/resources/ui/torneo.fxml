@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.fx.TorneoController" stylesheets="@panels.css">
+    <top>
+        <HBox styleClass="header" alignment="CENTER">
+            <Label text="🏆 SELECCIÓN DE TORNEOS" styleClass="title"/>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.4">
+            <VBox spacing="8" styleClass="panel" alignment="TOP_CENTER">
+                <Label text="TORNEOS DISPONIBLES" styleClass="section"/>
+                <ListView fx:id="listTorneos" prefHeight="620" prefWidth="360"/>
+                <Button fx:id="btnStartTournament" text="🚀 INICIAR TORNEO" onAction="#onStartTournament" />
+            </VBox>
+
+            <VBox spacing="8" styleClass="panel" alignment="TOP_LEFT">
+                <Label text="INFORMACIÓN DEL TORNEO" styleClass="section"/>
+                <TextArea fx:id="txtTournamentInfo" editable="false" wrapText="true"/>
+                <Label text="Árbol de torneo (vista rápida)" styleClass="section"/>
+                <TreeView fx:id="treeBracket" prefHeight="300"/>
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>

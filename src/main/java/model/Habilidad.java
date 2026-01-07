@@ -87,7 +87,7 @@ public class Habilidad {
         this.valorMejora = valorMejora;
     }
 
-    // Getters
+
     public boolean puedeComprar(Jugador jugador) {
         return jugador.getDinero() >= costoDinero &&
                 jugador.getExperiencia() >= costoExperiencia;
@@ -95,10 +95,16 @@ public class Habilidad {
 
     public void comprar(Jugador jugador) {
         if (puedeComprar(jugador) && !desbloqueada) {
-            jugador.gastarDinero(costoDinero);
-            jugador.setExperiencia(-costoExperiencia);
-            jugador.mejorarHabilidad(tipo, valorMejora);
-            desbloqueada = true;
+            boolean okDinero = jugador.gastarDinero(costoDinero);
+            boolean okExp = jugador.gastarExperiencia(costoExperiencia);
+            if (okDinero && okExp) {
+                jugador.mejorarHabilidad(tipo, valorMejora);
+                desbloqueada = true;
+            } else {
+                // Si por alguna razón no se pudo pagar, revertir (defensivo)
+                if (okDinero && !okExp) jugador.agregarDinero(costoDinero);
+                if (!okDinero && okExp) jugador.agregarExperiencia(costoExperiencia);
+            }
         }
     }
 }

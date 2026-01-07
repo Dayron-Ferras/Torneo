@@ -1,109 +1,102 @@
 package game;
 
 import model.Jugador;
+
 import java.util.Random;
 
+/**
+ * Clase que maneja una tanda de penaltis paso a paso.
+ * La UI debe instanciarla y llamar playerShoot(Direction) para procesar el tiro del jugador,
+ * y luego obtener la respuesta para animar y actualizar marcadores.
+ */
 public class PenaltyShootout {
-    private static final Random random = new Random();
-    private static final String[] DIRECCIONES = {"IZQUIERDA", "CENTRO", "DERECHA"};
+    private final Random random = new Random();
+    private final String[] DIRECCIONES = {"IZQUIERDA", "CENTRO", "DERECHA"};
+    private final Jugador jugador;
+    private final int totalKicks;
+    private int playerGoals;
+    private int opponentGoals;
+    private int kicksTaken;
 
-    public static ResultadoPenaltis jugarPartido(Jugador jugador, String equipoRival) {
-        int golesJugador = 0;
-        int golesRival = 0;
-
-        System.out.println("⚽ COMIENZA LA TANDA DE PENALTIS ⚽");
-        System.out.println("Jugador vs " + equipoRival);
-
-        // 5 penaltis para cada uno
-        for (int i = 1; i <= 5; i++) {
-            System.out.println("\n--- Penalti " + i + " ---");
-
-            // Turno del jugador
-            boolean golJugador = ejecutarPenaltiJugador(jugador);
-            if (golJugador) golesJugador++;
-
-            // Turno del rival (simulado)
-            boolean golRival = ejecutarPenaltiRival();
-            if (golRival) golesRival++;
-
-            System.out.println("Marcador: " + golesJugador + " - " + golesRival);
-        }
-
-        // Desempate si hay empate
-        while (golesJugador == golesRival) {
-            System.out.println("\n--- PENALTI DE DESEMPATE ---");
-
-            boolean golJugador = ejecutarPenaltiJugador(jugador);
-            if (golJugador) golesJugador++;
-
-            boolean golRival = ejecutarPenaltiRival();
-            if (golRival) golesRival++;
-
-            System.out.println("Marcador: " + golesJugador + " - " + golesRival);
-        }
-
-        boolean jugadorGana = golesJugador > golesRival;
-        System.out.println("\n" + (jugadorGana ? "🎉 ¡VICTORIA!" : "💔 Derrota"));
-
-        return new ResultadoPenaltis(jugadorGana, golesJugador, golesRival);
+    public PenaltyShootout(Jugador jugador) {
+        this(jugador, 5);
     }
 
-    private static boolean ejecutarPenaltiJugador(Jugador jugador) {
-        // Simular elección del jugador (en UI sería con botones)
-        String direccionElegida = DIRECCIONES[random.nextInt(3)];
+    public PenaltyShootout(Jugador jugador, int totalKicks) {
+        this.jugador = jugador;
+        this.totalKicks = totalKicks;
+        reset();
+    }
 
-        // El portero elige una dirección aleatoria
-        String direccionPortero = DIRECCIONES[random.nextInt(3)];
+    public enum Direction { LEFT, CENTER, RIGHT }
 
-        // Calcular probabilidad de gol basada en habilidades
-        double probabilidadBase = 0.7; // 70% base
-        double bonusPrecision = jugador.getPrecision() * 0.002; // +0.2% por punto
-        double bonusEstrategia = jugador.getEstrategia() * 0.001; // +0.1% por punto
+    public static class KickResult {
+        public final boolean playerScored;
+        public final boolean opponentScored;
+        public final int playerGoals;
+        public final int opponentGoals;
+        public final boolean seriesFinished;
 
-        double probabilidadTotal = probabilidadBase + bonusPrecision + bonusEstrategia;
+        public KickResult(boolean playerScored, boolean opponentScored, int pGoals, int oGoals, boolean finished) {
+            this.playerScored = playerScored;
+            this.opponentScored = opponentScored;
+            this.playerGoals = pGoals;
+            this.opponentGoals = oGoals;
+            this.seriesFinished = finished;
+        }
+    }
 
-        // Si el jugador y portero eligen misma dirección, menos probabilidad
-        if (direccionElegida.equals(direccionPortero)) {
-            probabilidadTotal -= 0.4; // -40% si ataja
+    public void reset() {
+        this.playerGoals = 0;
+        this.opponentGoals = 0;
+        this.kicksTaken = 0;
+    }
+
+    public KickResult playerShoot(Direction dir) {
+        if (kicksTaken >= totalKicks) {
+            return new KickResult(false, false, playerGoals, opponentGoals, true);
         }
 
-        boolean esGol = random.nextDouble() < probabilidadTotal;
+        boolean playerScored = computePlayerGoal(dir);
+        if (playerScored) playerGoals++;
 
-        System.out.println("Tu tiro: " + direccionElegida +
-                " | Portero: " + direccionPortero +
-                " | " + (esGol ? "⚽ GOL!" : "❌ Fallado"));
+        // Oponente tira después
+        boolean opponentScored = computeOpponentGoal();
+        if (opponentScored) opponentGoals++;
 
-        return esGol;
+        kicksTaken++;
+
+        boolean finished = kicksTaken >= totalKicks && playerGoals != opponentGoals;
+        // Nota: si empate al terminar, la UI decide si ir a muerte súbita (llamar otra tanda)
+
+        return new KickResult(playerScored, opponentScored, playerGoals, opponentGoals, finished);
     }
 
-    private static boolean ejecutarPenaltiRival() {
-        // Simular penalti del rival
-        String direccionRival = DIRECCIONES[random.nextInt(3)];
-        String direccionPorteroJugador = DIRECCIONES[random.nextInt(3)];
+    private boolean computePlayerGoal(Direction dir) {
+        double base = 0.7;
+        double bonusPrecision = jugador.getPrecision() * 0.002; // ejemplo
+        double bonusEstrategia = jugador.getEstrategia() * 0.001;
+        double prob = base + bonusPrecision + bonusEstrategia;
 
-        boolean esGol = !direccionRival.equals(direccionPorteroJugador);
+        // Portero (simulado) elige una dirección
+        String portero = DIRECCIONES[random.nextInt(3)];
+        String elegido = dir == Direction.LEFT ? "IZQUIERDA" : dir == Direction.CENTER ? "CENTRO" : "DERECHA";
+        if (elegido.equals(portero)) prob -= 0.4;
 
-        System.out.println("Rival tira: " + direccionRival +
-                " | Tu portero: " + direccionPorteroJugador +
-                " | " + (esGol ? "⚽ Gol rival" : "🧤 ¡Atajado!"));
-
-        return esGol;
+        prob = Math.max(0.0, Math.min(1.0, prob)); // clamp
+        return random.nextDouble() < prob;
     }
 
-    public static class ResultadoPenaltis {
-        private final boolean victoria;
-        private final int golesJugador;
-        private final int golesRival;
-
-        public ResultadoPenaltis(boolean victoria, int golesJugador, int golesRival) {
-            this.victoria = victoria;
-            this.golesJugador = golesJugador;
-            this.golesRival = golesRival;
-        }
-
-        // Getters
-        public boolean isVictoria() { return victoria; }
-        public int getGolesJugador() { return golesJugador; }
-        public int getGolesRival() { return golesRival; }
+    private boolean computeOpponentGoal() {
+        // Se puede mejorar usando atributos del equipo rival. Por ahora base 0.6
+        double base = 0.6;
+        double prob = Math.max(0.0, Math.min(1.0, base));
+        return random.nextDouble() < prob;
     }
+
+    // Getters de estado
+    public int getPlayerGoals() { return playerGoals; }
+    public int getOpponentGoals() { return opponentGoals; }
+    public int getKicksTaken() { return kicksTaken; }
+    public int getTotalKicks() { return totalKicks; }
 }

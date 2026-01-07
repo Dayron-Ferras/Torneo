@@ -20,7 +20,6 @@ public class Torneo {
         this.clubsParticipantes = new ArrayList<>();
     }
 
-    // Métodos
     public void agregarClub(Club club) {
         clubsParticipantes.add(club);
     }
@@ -33,7 +32,6 @@ public class Torneo {
         this.completado = true;
     }
 
-    // Getters
     public String getNombre() { return nombre; }
     public int getNivelRequerido() { return nivelRequerido; }
     public int getRecompensa() { return recompensa; }
