@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.fxSinTabbedPane.MainMenuControl"
+            style="-fx-background-color: #1a1c37;">
+
+    <top>
+        <VBox alignment="CENTER" spacing="5">
+            <padding>
+                <Insets top="25" right="20" bottom="25" left="20"/>
+            </padding>
+
+            <Label text="⚽ PENALTY TOURNAMENT EVOLUTION"
+                   style="-fx-text-fill: white;">
+                <font>
+                    <Font name="Arial Black" size="32"/>
+                </font>
+            </Label>
+
+            <Label text="Conviértete en la leyenda del fútbol"
+                   style="-fx-text-fill: #c0c0c0;">
+                <font>
+                    <Font name="Arial Italic" size="16"/>
+                </font>
+            </Label>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="25">
+            <padding>
+                <Insets top="40" right="40" bottom="40" left="40"/>
+            </padding>
+
+            <Button fx:id="btnTorneo"
+                    text="⚽ INICIAR TORNEO"
+                    prefWidth="500" prefHeight="70"
+                    style="-fx-background-color: #0ea800; -fx-text-fill: white;
+                           -fx-font-size: 22; -fx-font-weight: bold;"/>
+
+            <Button fx:id="btnHabilidades"
+                    text="🔥 HABILIDADES"
+                    prefWidth="500" prefHeight="70"
+                    style="-fx-background-color: #d68d00; -fx-text-fill: white;
+                           -fx-font-size: 22; -fx-font-weight: bold;"/>
+
+            <Button fx:id="btnPartido"
+                    text="⚽ PARTIDO RÁPIDO"
+                    prefWidth="500" prefHeight="70"
+                    style="-fx-background-color: #b30000; -fx-text-fill: white;
+                           -fx-font-size: 22; -fx-font-weight: bold;"/>
+
+            <Button fx:id="btnSalir"
+                    text="⛔ SALIR"
+                    prefWidth="500" prefHeight="70"
+                    style="-fx-background-color: #6b6b6b; -fx-text-fill: white;
+                           -fx-font-size: 22; -fx-font-weight: bold;"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <VBox alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="15" left="10"/>
+            </padding>
+
+            <Label fx:id="lblPlayerName"
+                   text="Jugador: ---"
+                   style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+
+            <Label fx:id="lblLevel"
+                   text="Nivel: ---"
+                   style="-fx-text-fill: #c0c0c0; -fx-font-size: 14;"/>
+
+            <Label fx:id="lblDinero"
+                   text="XP: ---"
+                   style="-fx-text-fill: #c0c0c0; -fx-font-size: 14;"/>
+        </VBox>
+    </bottom>
+
+</BorderPane>

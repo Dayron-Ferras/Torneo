@@ -13,7 +13,7 @@ public class ArbolHabilidades {
     }
 
     private void construirArbolHabilidades() {
-        // Nodo raíz
+
         Habilidad raiz = new Habilidad("root", "Habilidades Principales",
                 "Desbloquea todas las habilidades", 0, 0, "none", 0);
         BinaryTreeNode<Habilidad> nodoRaiz = new BinaryTreeNode<>(raiz);

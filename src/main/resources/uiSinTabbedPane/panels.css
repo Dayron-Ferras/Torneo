@@ -1,0 +1,57 @@
+.header {
+    -fx-padding: 20;
+    -fx-background-color: #24263f;
+}
+
+.title {
+    -fx-text-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.panel {
+    -fx-background-color: #2a2d4a;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+}
+
+.section {
+    -fx-text-fill: #c0c0c0;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.list-view {
+    -fx-background-radius: 8;
+    -fx-control-inner-background: #1e2035;
+    -fx-text-fill: white;
+}
+
+.info-area {
+    -fx-control-inner-background: #1e2035;
+    -fx-font-size: 14px;
+    -fx-text-fill: #d0d0d0;
+    -fx-background-radius: 8;
+}
+
+.tree-view {
+    -fx-background-color: #1e2035;
+    -fx-background-radius: 8;
+}
+
+.action-button {
+    -fx-background-color: #0ea800;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-padding: 12 25;
+    -fx-background-radius: 8;
+}
+
+.action-button:hover {
+    -fx-background-color: #16c612;
+}
+
+.split-pane {
+    -fx-padding: 10;
+}

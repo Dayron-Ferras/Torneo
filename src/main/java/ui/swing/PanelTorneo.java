@@ -1,12 +1,10 @@
-package ui;
+package ui.swing;
 
 import game.GameManager;
 import model.Torneo;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 public class PanelTorneo extends JPanel {
     private GameManager gameManager;

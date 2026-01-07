@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.fxSinTabbedPane.HabilidadesControl"
+            stylesheets="@panels.css">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header" spacing="12">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Button fx:id="btnVolver"
+                    text="⬅ Menú Principal"
+                    onAction="#onVolver"
+                    styleClass="back-button"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Label text="⭐ SISTEMA DE HABILIDADES"
+                   styleClass="title"
+                   alignment="CENTER"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </top>
+
+    <center>
+        <!-- SplitPane no tiene padding; envolvemos en VBox si queremos espacio -->
+        <VBox>
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
+
+            <SplitPane dividerPositions="0.45">
+
+                <!-- ÁRBOL -->
+                <VBox spacing="8" styleClass="panel" alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+
+                    <Label text="🌳 ÁRBOL DE HABILIDADES" styleClass="section"/>
+                    <TreeView fx:id="treeHabs" prefHeight="620" prefWidth="420"/>
+                </VBox>
+
+                <VBox spacing="12" styleClass="panel" alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+
+                    <Label text="📊 INFORMACIÓN DE HABILIDAD" styleClass="section"/>
+
+                    <TextArea fx:id="txtInfo"
+                              editable="false" wrapText="true"
+                              prefRowCount="12"/>
+
+                    <Button fx:id="btnBuy"
+                            text="🛒 COMPRAR HABILIDAD"
+                            onAction="#onBuy"
+                            disable="true"
+                            styleClass="buy-button"/>
+
+                    <Separator/>
+
+                    <Label text="👤 ESTADÍSTICAS DEL JUGADOR" styleClass="section"/>
+
+                    <GridPane fx:id="statsGrid" hgap="10" vgap="8">
+                        <padding>
+                            <Insets top="6" right="6" bottom="6" left="6"/>
+                        </padding>
+                    </GridPane>
+                </VBox>
+            </SplitPane>
+        </VBox>
+    </center>
+
+</BorderPane>
