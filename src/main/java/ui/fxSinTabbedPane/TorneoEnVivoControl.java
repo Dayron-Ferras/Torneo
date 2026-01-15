@@ -42,6 +42,10 @@ public class TorneoEnVivoControl {
     private ArbolTorneo arbolTorneoActual;
     private boolean torneoTerminado = false;
 
+    private int eliminadoCount = 0;
+    private String ultimoMensaje = "";
+
+
     public void setGameManager(GameManager gm) {
         this.gameManager = gm;
         cargarTorneoActual();
@@ -105,9 +109,7 @@ public class TorneoEnVivoControl {
         agregarLog("Equipos participantes:");
         for (Club club : torneoActual.getClubsParticipantes()) {
             agregarLog("  • " + club.getNombre() +
-                    // Si Club no tiene método getNivel(), comentamos esta línea
-                    // " (Nivel " + club.getNivel() + ")"
-                    "");
+                    " (Nivel " + club.getNivel() + ")"); // ¡Ahora funciona!
         }
         agregarLog("");
     }
@@ -215,39 +217,63 @@ public class TorneoEnVivoControl {
     }
 
     private void actualizarBotones() {
-        if (torneoTerminado) {
-            btnJugarPartido.setText("Torneo Completado");
-            btnJugarPartido.setDisable(true);
-            btnJugarPartido.setStyle("-fx-background-color: #cccccc; -fx-text-fill: #666666;");
-            btnSimularTodo.setDisable(true);
-            btnForzarAvance.setDisable(true);
-            return;
-        }
-
-        Partido partidoActual = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
-        boolean puedeJugar = (partidoActual != null && !partidoActual.isJugado());
-
-        // Verificar si los equipos están definidos
-        if (puedeJugar) {
-            boolean equiposDefinidos = verificarEquiposPartido(partidoActual);
-            if (!equiposDefinidos) {
-                btnJugarPartido.setText("Simular Partidos Previos");
-                btnJugarPartido.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white;");
-                agregarLog("⚠️ Partido pendiente pero equipos no definidos completamente");
-            } else {
-                btnJugarPartido.setText("🎮 Jugar Partido");
-                btnJugarPartido.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+        Platform.runLater(() -> {
+            if (torneoTerminado) {
+                btnJugarPartido.setText("🏆 Torneo Completado");
+                btnJugarPartido.setDisable(true);
+                btnJugarPartido.setStyle("-fx-background-color: #cccccc; -fx-text-fill: #666666;");
+                btnSimularTodo.setDisable(true);
+                btnForzarAvance.setDisable(true);
+                return;
             }
-            btnJugarPartido.setDisable(false);
-        } else {
-            btnJugarPartido.setText("No hay partido pendiente");
-            btnJugarPartido.setDisable(true);
-            btnJugarPartido.setStyle("-fx-background-color: #cccccc; -fx-text-fill: #666666;");
-        }
 
-        // Siempre habilitar botones de simulación
-        btnSimularTodo.setDisable(false);
-        btnForzarAvance.setDisable(false);
+            // Verificar si el jugador fue eliminado
+            boolean jugadorEliminado = false;
+            try {
+                jugadorEliminado = gameManager.isJugadorEliminado();
+            } catch (Exception e) {
+                jugadorEliminado = true;
+            }
+
+            if (jugadorEliminado) {
+                btnJugarPartido.setText("❌ ELIMINADO");
+                btnJugarPartido.setDisable(true);
+                btnJugarPartido.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;");
+                // ¡IMPORTANTE! Remover cualquier evento que pueda estar causando el bucle
+                btnJugarPartido.setOnAction(null);
+            } else {
+                Partido partidoActual = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
+
+                if (partidoActual != null && !partidoActual.isJugado()) {
+                    boolean equiposDefinidos = verificarEquiposPartido(partidoActual);
+
+                    if (equiposDefinidos) {
+                        btnJugarPartido.setText("🎮 Jugar Partido");
+                        btnJugarPartido.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+                        btnJugarPartido.setDisable(false);
+                        // Restaurar el evento solo si no está eliminado
+                        btnJugarPartido.setOnAction(e -> onJugarPartido());
+                    } else {
+                        btnJugarPartido.setText("⚙️ Simular Previos");
+                        btnJugarPartido.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white;");
+                        btnJugarPartido.setDisable(false);
+                        btnJugarPartido.setOnAction(e -> {
+                            simularHastaPartidoActual();
+                            actualizarUI();
+                        });
+                    }
+                } else {
+                    btnJugarPartido.setText("⏳ Esperando...");
+                    btnJugarPartido.setDisable(true);
+                    btnJugarPartido.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white;");
+                    btnJugarPartido.setOnAction(null);
+                }
+            }
+
+            // Siempre habilitar botones de simulación
+            btnSimularTodo.setDisable(false);
+            btnForzarAvance.setDisable(false);
+        });
     }
 
     private boolean verificarEquiposPartido(Partido partido) {
@@ -263,11 +289,7 @@ public class TorneoEnVivoControl {
         }
 
         // Verificar que no sean equipos placeholder
-        if (local.getNombre().contains("Por Definir") || visitante.getNombre().contains("Por Definir")) {
-            return false;
-        }
-
-        return true;
+        return !local.getNombre().contains("Por Definir") && !visitante.getNombre().contains("Por Definir");
     }
 
     private void construirArbolVisual() {
@@ -373,43 +395,131 @@ public class TorneoEnVivoControl {
 
     @FXML
     private void onJugarPartido() {
-        if (gameManager == null || arbolTorneoActual == null) {
-            mostrarAlerta("No hay torneo activo", Alert.AlertType.WARNING);
-            return;
-        }
+        // Protección contra múltiples clics rápidos
+        btnJugarPartido.setDisable(true);
 
-        Partido partidoActual = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
+        try {
+            if (gameManager == null || arbolTorneoActual == null) {
+                mostrarAlerta("No hay torneo activo", Alert.AlertType.WARNING);
+                return;
+            }
 
-        if (partidoActual == null) {
-            mostrarAlerta("No hay partidos pendientes", Alert.AlertType.INFORMATION);
-            return;
-        }
+            // Verificar ANTES de cualquier acción
+            if (gameManager.isJugadorEliminado()) {
+                mostrarAlerta("Ya has sido eliminado", Alert.AlertType.INFORMATION);
+                return;
+            }
 
-        if (partidoActual.isJugado()) {
-            mostrarAlerta("Este partido ya fue jugado", Alert.AlertType.INFORMATION);
-            return;
-        }
+            Partido partidoActual = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
 
-        // Verificar equipos
-        if (!verificarEquiposPartido(partidoActual)) {
-            // Si los equipos no están definidos, simular partidos previos
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Equipos no definidos");
-            alert.setHeaderText("Los equipos para este partido no están completamente definidos");
-            alert.setContentText("¿Quieres simular automáticamente los partidos previos necesarios?");
+            if (partidoActual == null) {
+                mostrarAlerta("No hay partido disponible", Alert.AlertType.INFORMATION);
+                return;
+            }
 
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.OK) {
-                    simularHastaPartidoActual();
-                    actualizarUI();
+            if (partidoActual.isJugado()) {
+                mostrarAlerta("Este partido ya fue jugado", Alert.AlertType.INFORMATION);
+                return;
+            }
+
+            // Verificar equipos
+            if (!verificarEquiposPartido(partidoActual)) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Equipos no definidos");
+                alert.setHeaderText("Los equipos no están completamente definidos");
+                alert.setContentText("¿Simular partidos previos?");
+
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        // SIMULAR SIN LLAMAR A jugarPartidoActual directamente
+                        simularPartidosPendientesNoJugador();
+                        // Después de simular, intentar cargar el partido nuevamente
+                        Partido nuevoPartido = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
+                        if (nuevoPartido != null && verificarEquiposPartido(nuevoPartido)) {
+                            cargarInterfazPartido(nuevoPartido);
+                        }
+                    }
+                });
+                return;
+            }
+
+            // Cargar la interfaz del partido de penaltis
+            agregarLog("🎮 Preparando partido de penaltis...");
+            cargarInterfazPartido(partidoActual);
+
+        } finally {
+            // Re-habilitar el botón después de un tiempo
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000); // Evitar clics rápidos
+                    Platform.runLater(() -> {
+                        if (!torneoTerminado && !gameManager.isJugadorEliminado()) {
+                            btnJugarPartido.setDisable(false);
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            });
-            return;
+            }).start();
+        }
+    }
+
+    // Método para simular solo partidos NO del jugador
+    private void simularPartidosPendientesNoJugador() {
+        agregarLog("🔧 Simulando partidos previos...");
+
+        Club clubJugador = gameManager.getJugador().getClubActual();
+        int simulados = 0;
+
+        while (simulados < 5) {
+            Partido proximo = arbolTorneoActual.getProximoPartidoJugable();
+            if (proximo == null) break;
+
+            // Solo simular si el jugador NO está en este partido
+            boolean jugadorEnPartido =
+                    (proximo.getEquipoLocal() != null && proximo.getEquipoLocal().equals(clubJugador)) ||
+                            (proximo.getEquipoVisitante() != null && proximo.getEquipoVisitante().equals(clubJugador));
+
+            if (!jugadorEnPartido && !proximo.isJugado()) {
+                proximo.simularPartido();
+                simulados++;
+                agregarLog("   📋 Partido " + simulados + " simulado");
+                arbolTorneoActual.actualizarLlave();
+            } else {
+                break;
+            }
         }
 
-        // Preparar partido
-        prepararPartido(partidoActual);
+        agregarLog("✅ " + simulados + " partidos simulados");
+        actualizarUI();
     }
+
+    // Método auxiliar para simular solo los partidos necesarios
+    private void simularPartidosPendientes() {
+        agregarLog("🔧 SIMULANDO PARTIDOS PENDIENTES");
+
+        int simulados = 0;
+        int maxSimulaciones = 5;
+
+        while (simulados < maxSimulaciones) {
+            Partido proximoPartido = arbolTorneoActual.getProximoPartidoJugable();
+            if (proximoPartido == null) break;
+
+            proximoPartido.simularPartido();
+            simulados++;
+            agregarLog("   📋 Partido " + simulados + " simulado: " + proximoPartido);
+
+            // Actualizar árbol
+            arbolTorneoActual.actualizarLlave();
+
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+        }
+
+        agregarLog("✅ " + simulados + " partidos simulados");
+        actualizarUI();
+    }
+
+
 
     private void prepararPartido(Partido partido) {
         Club local = partido.getEquipoLocal();
@@ -425,51 +535,63 @@ public class TorneoEnVivoControl {
     }
 
     private void cargarInterfazPartido(Partido partido) {
+
+        System.out.println("Intentando cargar FXML desde: " + getClass().getResource("/uiSinTabbedPane/partidoRapido.fxml"));
+        System.out.println("Partido: " + partido);
+        System.out.println("GameManager: " + gameManager);
+
         try {
+            // Obtener el partido actual del jugador
+            Partido partidoActual = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
+
+            if (partidoActual == null) {
+                agregarLog("❌ No se pudo encontrar el partido del jugador");
+                return;
+            }
+
             // IMPORTANTE: Usar FXMLLoader con importación correcta
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/uiSinTabbedPane/partidoRapido.fxml"));
             BorderPane partidoView = loader.load();
 
             PartidoRapidoControl partidoController = loader.getController();
             partidoController.setGameManager(gameManager);
-            partidoController.setMainApp(new PrincipalWrapper());
+            partidoController.setMainApp(principal); // Pasar el principal real, no un wrapper
             partidoController.refreshPanel();
 
+            // Limpiar el contenedor y agregar la vista del partido
             panelPartidoContainer.getChildren().clear();
             panelPartidoContainer.getChildren().add(partidoView);
 
-            // Botón de control
+            // Mostrar información del partido
+            agregarLog("🎮 Partido cargado: " + partidoActual.getEquipoLocal().getNombre() +
+                    " vs " + partidoActual.getEquipoVisitante().getNombre());
+            agregarLog("   Haz clic en 'Iniciar' para comenzar la tanda de penaltis");
+
+            // Opcional: Agregar botones de control simplificados
             HBox controlBox = new HBox(10);
             controlBox.setAlignment(Pos.CENTER);
-            controlBox.setStyle("-fx-padding: 15px; -fx-background-color: #f5f5f5;");
+            controlBox.setStyle("-fx-padding: 10px; -fx-background-color: #f0f0f0;");
 
-            Button btnSimularYVolver = new Button("🎲 Simular este partido");
-            btnSimularYVolver.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
-            btnSimularYVolver.setOnAction(e -> {
-                simularPartidoActual();
+            Button btnVolver = new Button("← Volver al torneo");
+            btnVolver.setOnAction(e -> {
                 panelPartidoContainer.getChildren().clear();
+                agregarLog("← Regresando al torneo");
                 actualizarUI();
             });
 
-            Button btnJugarReal = new Button("🎮 Jugar con penalitis");
-            btnJugarReal.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-            btnJugarReal.setOnAction(e -> {
-                // El partido se jugará a través de la interfaz de penalitis
-                agregarLog("⚽ Iniciando tanda de penalitis...");
-            });
-
-            Button btnCancelar = new Button("❌ Cancelar");
-            btnCancelar.setOnAction(e -> {
-                panelPartidoContainer.getChildren().clear();
-                agregarLog("Partido cancelado");
-            });
-
-            controlBox.getChildren().addAll(btnSimularYVolver, btnJugarReal, btnCancelar);
+            controlBox.getChildren().add(btnVolver);
             panelPartidoContainer.getChildren().add(controlBox);
 
         } catch (Exception e) {
             e.printStackTrace();
             agregarLog("❌ Error al cargar la interfaz del partido: " + e.getMessage());
+
+            // Mostrar mensaje de error detallado
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No se pudo cargar el partido");
+            alert.setContentText("Detalles: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 
@@ -588,41 +710,80 @@ public class TorneoEnVivoControl {
         }
     }
 
+    // En TorneoEnVivoControl, modifica el método onForzarAvance():
     @FXML
     private void onForzarAvance() {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Forzar avance");
-        confirmacion.setHeaderText("¿Forzar avance del torneo?");
-        confirmacion.setContentText("Se intentará resolver partidos con equipos no definidos.");
+        if (gameManager == null || arbolTorneoActual == null) {
+            mostrarAlerta("No hay torneo activo", Alert.AlertType.WARNING);
+            return;
+        }
 
-        confirmacion.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                forzarAvanceTorneo();
-            }
-        });
+        // Verificar estado del jugador
+        boolean jugadorEliminado = false;
+        Partido partidoJugador = arbolTorneoActual.getPartidoActual(gameManager.getJugador());
+        jugadorEliminado = (partidoJugador == null && !arbolTorneoActual.isTorneoTerminado());
+
+        if (jugadorEliminado) {
+            // Jugador eliminado - simular solo partidos de otros equipos
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Simular resto del torneo");
+            confirmacion.setHeaderText("¿Simular los partidos restantes?");
+            confirmacion.setContentText("Has sido eliminado. ¿Quieres ver cómo termina el torneo?");
+
+            confirmacion.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    agregarLog("⏩ Simulando partidos restantes...");
+
+                    try {
+                        // Intentar usar el nuevo método
+                        java.lang.reflect.Method method = gameManager.getClass()
+                                .getMethod("simularPartidosOtrosEquipos");
+                        method.invoke(gameManager);
+                    } catch (Exception e) {
+                        // Si no existe, usar avanzarTorneo
+                        gameManager.avanzarTorneo();
+                    }
+
+                    actualizarUI();
+
+                    // Verificar si el torneo terminó
+                    if (arbolTorneoActual.isTorneoTerminado()) {
+                        Club campeon = arbolTorneoActual.getCampeon();
+                        if (campeon != null) {
+                            agregarLog("\n🏆 CAMPEÓN: " + campeon.getNombre());
+                        }
+                    }
+                }
+            });
+        } else {
+            // Jugador aún en el torneo
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Forzar avance");
+            confirmacion.setHeaderText("¿Forzar avance del torneo?");
+            confirmacion.setContentText("Se intentará avanzar en el torneo.");
+
+            confirmacion.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    forzarAvanceTorneo();
+                }
+            });
+        }
     }
 
+    // Modifica el método forzarAvanceTorneo():
     private void forzarAvanceTorneo() {
         agregarLog("🔧 FORZANDO AVANCE DEL TORNEO");
 
-        int cambios = 0;
-
         try {
-            // Intentar simular varias veces para forzar avance
-            for (int i = 0; i < 15; i++) {
-                gameManager.jugarPartidoActual();
-                cambios++;
-                try { Thread.sleep(50); } catch (InterruptedException e) {}
-            }
-
-            agregarLog("✅ " + cambios + " cambios aplicados");
+            // Usar el método que tiene límites para evitar bucles
+            gameManager.avanzarTorneo();
+            agregarLog("✅ Avance completado");
             actualizarUI();
 
         } catch (Exception e) {
             agregarLog("❌ Error: " + e.getMessage());
         }
     }
-
     @FXML
     private void onVolverMenu() {
         if (principal != null) {
@@ -674,9 +835,59 @@ public class TorneoEnVivoControl {
     private void agregarLog(String mensaje) {
         if (logTorneo != null) {
             Platform.runLater(() -> {
+                // Agregar el mensaje al log
                 logTorneo.appendText(mensaje + "\n");
                 logTorneo.setScrollTop(Double.MAX_VALUE);
+
+                // Detectar mensajes repetidos de "eliminado"
+                if (mensaje.toLowerCase().contains("eliminado")) {
+                    // Si es el mismo mensaje que el anterior, incrementar contador
+                    if (mensaje.equals(ultimoMensaje)) {
+                        eliminadoCount++;
+                    } else {
+                        eliminadoCount = 1;
+                        ultimoMensaje = mensaje;
+                    }
+
+                    // Si hay más de 3 mensajes idénticos seguidos, hay un bucle
+                    if (eliminadoCount > 3) {
+                        logTorneo.appendText("⚠️ ⚠️ ⚠️ POSIBLE BUCLE DETECTADO!\n");
+                        logTorneo.appendText("Mensaje repetido " + eliminadoCount + " veces: '" + mensaje + "'\n");
+                        logTorneo.appendText("Ejecutando diagnóstico...\n");
+
+                        // Ejecutar diagnóstico
+                        if (gameManager != null) {
+                            try {
+                                // Llamar al método de diagnóstico si existe
+                                java.lang.reflect.Method method = gameManager.getClass()
+                                        .getMethod("diagnosticarProblema");
+                                method.invoke(gameManager);
+                            } catch (Exception e) {
+                                logTorneo.appendText("No se pudo ejecutar diagnóstico: " + e.getMessage() + "\n");
+
+                                // Mostrar stack trace en consola
+                                e.printStackTrace();
+
+                                // Alternativa: hacer un dump de threads
+                                logTorneo.appendText("Realizando dump de threads...\n");
+                                Thread.dumpStack();
+                            }
+                        }
+
+                        logTorneo.appendText("Intenta:\n");
+                        logTorneo.appendText("1. Salir y volver al menú principal\n");
+                        logTorneo.appendText("2. Seleccionar otro torneo\n");
+                        logTorneo.appendText("3. Revisar consola para más detalles\n");
+                    }
+                } else {
+                    // Resetear contador si no es mensaje de eliminación
+                    eliminadoCount = 0;
+                    ultimoMensaje = "";
+                }
             });
+        } else {
+            // Si logTorneo es null, imprimir en consola
+            System.out.println("[LOG UI] " + mensaje);
         }
     }
 
@@ -710,6 +921,8 @@ public class TorneoEnVivoControl {
                 }
             }
         }
+
+
 
         @Override
         public GameManager getGameManager() {

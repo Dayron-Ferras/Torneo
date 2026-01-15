@@ -5,15 +5,27 @@ public class Club {
     private int nivelRequerido;
     private int recompensaBase;
     private boolean desbloqueado;
+    private int nivel; // Añadir este campo
 
     public Club(String nombre, int nivelRequerido, int recompensaBase) {
         this.nombre = nombre;
         this.nivelRequerido = nivelRequerido;
         this.recompensaBase = recompensaBase;
         this.desbloqueado = false;
+        this.nivel = nivelRequerido; // Inicializar nivel con nivelRequerido
     }
 
+    // Añadir este getter
+    public int getNivel() {
+        return nivel;
+    }
 
+    // Añadir este setter
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
+    // Resto de tus métodos existentes...
     public String getNombre() {
         return nombre;
     }
